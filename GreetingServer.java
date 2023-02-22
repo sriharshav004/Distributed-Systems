@@ -36,7 +36,7 @@ public class GreetingServer extends Thread {
     }
 
     public static void main(String[] args) {
-        int port = Integer.parseInt("22");
+        int port = Integer.parseInt("6066");
         
         try {
             Thread t = new GreetingServer(port);
