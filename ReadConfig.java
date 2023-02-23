@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class ReadConfig {
     public static Node read(String currentHostName) throws Exception {
         FileReader fr = new FileReader(
-                "D:/Coursework/CS 6380 - DC/Assignments/Assignment 01/Submission/Distributed-Systems/config.txt");
+                "./config.txt");
         BufferedReader br = new BufferedReader(fr);
 
         ArrayList<Node> nodesList = new ArrayList<Node>();
@@ -42,7 +42,7 @@ public class ReadConfig {
         }
 
         for (Node nodei : nodesList) {
-            if (nodei.getHostName() == currentHostName) {
+            if (nodei.getHostName() == currentHostName.split(".")[0]) {
                 return nodei;
             }
         }
