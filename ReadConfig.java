@@ -3,7 +3,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 
 public class ReadConfig {
-    public static ArrayList<Node> read() throws Exception {
+    public static Node read(String currentHostName) throws Exception {
         FileReader fr = new FileReader(
                 "D:/Coursework/CS 6380 - DC/Assignments/Assignment 01/Submission/Distributed-Systems/config.txt");
         BufferedReader br = new BufferedReader(fr);
@@ -41,6 +41,12 @@ public class ReadConfig {
             br.close();
         }
 
-        return nodesList;
+        for (Node nodei : nodesList) {
+            if (nodei.getHostName() == currentHostName) {
+                return nodei;
+            }
+        }
+
+        return new Node();
     }
 }

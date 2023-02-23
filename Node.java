@@ -6,6 +6,9 @@ public class Node {
     private ArrayList<Integer> neighbours;
     private int UID;
 
+    public Node() {
+    }
+
     public Node(int UID, String hostName, int listeningPort) {
         this.UID = UID;
         this.hostName = hostName;
