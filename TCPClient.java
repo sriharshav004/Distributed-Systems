@@ -22,8 +22,9 @@ public class TCPClient {
             System.out.println(
                     "Client online with UID: " + this.node.getUID() + " and HostName: " + this.node.getHostName());
 
-            inFromServer = new ObjectInputStream(this.clientSocket.getInputStream());
-            outToServer = new ObjectOutputStream(this.clientSocket.getOutputStream());
+            this.outToServer = new ObjectOutputStream(this.clientSocket.getOutputStream());
+            this.outToServer.flush();
+            this.inFromServer = new ObjectInputStream(this.clientSocket.getInputStream());
 
             String text = "Hello from " + this.node.getUID();
             this.sendMessage(text, Message.MessageType.HANDSHAKE);

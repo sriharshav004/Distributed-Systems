@@ -21,6 +21,12 @@ public class Main {
                             : "dc02.utdallas.edu";
                     int serverPortNumber = currHostName == "dc02.utdallas.edu" ? 3233 : 2234;
 
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
                     TCPClient client = new TCPClient(currNode, serverHostName, serverPortNumber);
                     client.connect();
                 }

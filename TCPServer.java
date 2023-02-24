@@ -22,9 +22,9 @@ public class TCPServer {
                 Runnable runnable = new Runnable() {
                     public void run() {
                         try {
-                            ObjectInputStream inFromClient = new ObjectInputStream(connectionSocket.getInputStream());
                             ObjectOutputStream outToClient = new ObjectOutputStream(connectionSocket.getOutputStream());
                             outToClient.flush();
+                            ObjectInputStream inFromClient = new ObjectInputStream(connectionSocket.getInputStream());
 
                             while (true) {
                                 Message message = (Message) inFromClient.readObject();
