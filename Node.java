@@ -2,17 +2,17 @@ import java.util.ArrayList;
 
 public class Node {
     private String hostName;
-    private int listeningPort;
     private ArrayList<Integer> neighbours;
+    private int port;
     private int UID;
 
     public Node() {
     }
 
-    public Node(int UID, String hostName, int listeningPort) {
-        this.UID = UID;
+    public Node(int UID, String hostName, int port) {
         this.hostName = hostName;
-        this.listeningPort = listeningPort;
+        this.port = port;
+        this.UID = UID;
 
         neighbours = new ArrayList<Integer>();
     }
@@ -25,12 +25,12 @@ public class Node {
         return this.hostName;
     }
 
-    public int getListeningPort() {
-        return this.listeningPort;
-    }
-
     public ArrayList<Integer> getNeighbours() {
         return this.neighbours;
+    }
+
+    public int getPort() {
+        return this.port;
     }
 
     public int getUID() {
