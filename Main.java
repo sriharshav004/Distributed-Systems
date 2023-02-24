@@ -25,8 +25,7 @@ public class Main {
                                 e.printStackTrace();
                             }
 
-                            TCPClient client = new TCPClient(currNode, neighbourNode.getHostName(),
-                                    neighbourNode.getPort());
+                            TCPClient client = new TCPClient(currNode, neighbourNode);
                             client.connect();
                         }
                     };

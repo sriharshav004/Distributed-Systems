@@ -1,20 +1,24 @@
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 public class TCPServer {
-    private Node node;
+    private Node serverNode;
     private ServerSocket serverSocket;
 
-    public TCPServer(Node node) {
-        this.node = node;
+    public TCPServer(Node serverNode) {
+        this.serverNode = serverNode;
     }
 
     public void startListening() {
         try {
-            serverSocket = new ServerSocket(this.node.getPort());
+            serverSocket = new ServerSocket(this.serverNode.getPort());
 
             System.out.println(
-                    "Server online with UID: " + this.node.getUID() + " and HostName: " + this.node.getHostName());
+                    "Server online with UID: " + this.serverNode.getUID() + " and HostName: "
+                            + this.serverNode.getHostName());
 
             while (true) {
                 Socket connectionSocket = serverSocket.accept();
@@ -29,7 +33,7 @@ public class TCPServer {
                             while (true) {
                                 Message message = (Message) inFromClient.readObject();
                                 System.out.println("Received message: " + message.getText() + " from client UID: "
-                                        + connectionSocket.getRemoteSocketAddress());
+                                        + message.getClientNode().getUID());
                             }
                         } catch (IOException | ClassNotFoundException e) {
                             e.printStackTrace();

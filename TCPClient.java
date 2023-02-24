@@ -1,54 +1,42 @@
-import java.io.*;
-import java.net.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 
 public class TCPClient {
+    private Node clientNode;
     private Socket clientSocket;
     private ObjectInputStream inFromServer;
-    private Node node;
     private ObjectOutputStream outToServer;
-    private String serverHostName;
-    private int serverPortNumber;
+    private Node serverNode;
 
-    public TCPClient(Node node, String serverHostName, int serverPortNumber) {
-        this.node = node;
-        this.serverHostName = serverHostName;
-        this.serverPortNumber = serverPortNumber;
+    public TCPClient(Node clientNode, Node serverNode) {
+        this.clientNode = clientNode;
+        this.serverNode = serverNode;
     }
 
     public void connect() {
         try {
-            this.clientSocket = new Socket(serverHostName, serverPortNumber);
+            this.clientSocket = new Socket(this.serverNode.getHostName(), this.serverNode.getPort());
 
             System.out.println(
-                    "Client online with UID: " + this.node.getUID() + " and HostName: " + this.node.getHostName());
+                    "Client online connected UID: " + this.serverNode.getUID() + " and HostName: "
+                            + this.serverNode.getHostName());
 
             this.outToServer = new ObjectOutputStream(this.clientSocket.getOutputStream());
             this.outToServer.flush();
             this.inFromServer = new ObjectInputStream(this.clientSocket.getInputStream());
 
-            for (int i = 0; i < 20; i++) {
+            for (int i = 0; i < 5; i++) {
                 try {
                     Thread.sleep(2000);
 
-                    String text = "Hello from " + this.node.getUID();
-                    this.sendMessage(text, Message.MessageType.HANDSHAKE);
+                    String text = "Hello from " + this.clientNode.getUID();
+                    new Message(this.clientNode, text, Message.MessageType.HANDSHAKE).send(serverNode, outToServer);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void sendMessage(String text, Message.MessageType type) {
-        try {
-            Message msg = new Message(text, type);
-
-            this.outToServer.writeObject(msg);
-            this.outToServer.flush();
-
-            System.out.println("Sent message: " + msg.getText() + " to server UID: " + this.node.getUID());
         } catch (IOException e) {
             e.printStackTrace();
         }
