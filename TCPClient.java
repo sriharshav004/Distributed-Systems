@@ -26,8 +26,16 @@ public class TCPClient {
             this.outToServer.flush();
             this.inFromServer = new ObjectInputStream(this.clientSocket.getInputStream());
 
-            String text = "Hello from " + this.node.getUID();
-            this.sendMessage(text, Message.MessageType.HANDSHAKE);
+            for (int i = 0; i < 20; i++) {
+                try {
+                    Thread.sleep(2000);
+
+                    String text = "Hello from " + this.node.getUID();
+                    this.sendMessage(text, Message.MessageType.HANDSHAKE);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

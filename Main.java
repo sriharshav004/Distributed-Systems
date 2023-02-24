@@ -15,24 +15,25 @@ public class Main {
             Thread servThread = new Thread(servRunnable);
             servThread.start();
 
-            Runnable cliRunnable = new Runnable() {
-                public void run() {
-                    String serverHostName = currHostName == "dc02.utdallas.edu" ? "dc03.utdallas.edu"
-                            : "dc02.utdallas.edu";
-                    int serverPortNumber = currHostName == "dc02.utdallas.edu" ? 3233 : 2234;
+            for (Node neighbourNode : currNode.getAllNodes()) {
+                if (currNode.isNodeNeighbour(neighbourNode.getUID())) {
+                    Runnable cliRunnable = new Runnable() {
+                        public void run() {
+                            try {
+                                Thread.sleep(10000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
 
-                    try {
-                        Thread.sleep(10000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                    TCPClient client = new TCPClient(currNode, serverHostName, serverPortNumber);
-                    client.connect();
+                            TCPClient client = new TCPClient(currNode, neighbourNode.getHostName(),
+                                    neighbourNode.getPort());
+                            client.connect();
+                        }
+                    };
+                    Thread cliThread = new Thread(cliRunnable);
+                    cliThread.start();
                 }
-            };
-            Thread cliThread = new Thread(cliRunnable);
-            cliThread.start();
+            }
 
         } catch (Exception e) {
             e.printStackTrace();

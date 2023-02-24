@@ -43,6 +43,7 @@ public class ReadConfig {
 
         for (Node nodei : nodesList) {
             if (currHostName.split("\\.")[0].equals(nodei.getHostName())) {
+                nodei.setAllNodes(nodesList);
                 return nodei;
             }
         }

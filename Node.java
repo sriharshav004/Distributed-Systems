@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 
 public class Node {
+    private ArrayList<Node> allNodes;
     private String hostName;
     private ArrayList<Integer> neighbours;
     private int port;
@@ -14,11 +15,15 @@ public class Node {
         this.port = port;
         this.UID = UID;
 
-        neighbours = new ArrayList<Integer>();
+        this.neighbours = new ArrayList<Integer>();
     }
 
     public void addNeighbour(int neighbourUID) {
         this.neighbours.add(neighbourUID);
+    }
+
+    public ArrayList<Node> getAllNodes() {
+        return this.allNodes;
     }
 
     public String getHostName() {
@@ -35,5 +40,17 @@ public class Node {
 
     public int getUID() {
         return this.UID;
+    }
+
+    public boolean isNodeNeighbour(int UID) {
+        for (int neighbour : this.neighbours) {
+            if (UID == neighbour)
+                return true;
+        }
+        return false;
+    }
+
+    public void setAllNodes(ArrayList<Node> allNodes) {
+        this.allNodes = allNodes;
     }
 }
