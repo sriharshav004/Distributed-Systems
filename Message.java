@@ -4,21 +4,39 @@ import java.io.Serializable;
 
 public class Message implements Serializable {
     public enum MessageType {
-        HANDSHAKE
+        HANDSHAKE,
+        LEADER_ELECTION_IN_PROGRESS
     }
 
-    private Node clientNode;
-    private String text;
+    private Node cliNode;
     private MessageType type;
 
-    public Message(Node clientNode, String text, MessageType type) {
-        this.clientNode = clientNode;
+    private String text;
+
+    private int maxDistance;
+    private int maxUID;
+    private int phase;
+
+    public Message(Node cliNode, String text) {
+        this.cliNode = cliNode;
         this.text = text;
-        this.type = type;
+        this.type = MessageType.HANDSHAKE;
+    }
+
+    public Message(Node cliNode, int maxDistance, int maxUID, int phase) {
+        this.cliNode = cliNode;
+        this.maxDistance = maxDistance;
+        this.maxUID = maxUID;
+        this.phase = phase;
+        this.type = MessageType.LEADER_ELECTION_IN_PROGRESS;
     }
 
     public Node getClientNode() {
-        return this.clientNode;
+        return this.cliNode;
+    }
+
+    public int getPhase() {
+        return this.phase;
     }
 
     public String getText() {

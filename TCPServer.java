@@ -12,6 +12,10 @@ public class TCPServer {
         this.serverNode = serverNode;
     }
 
+    public Node getServerNode() {
+        return this.serverNode;
+    }
+
     public void startListening() {
         try {
             serverSocket = new ServerSocket(this.serverNode.getPort());
@@ -32,8 +36,18 @@ public class TCPServer {
 
                             while (true) {
                                 Message message = (Message) inFromClient.readObject();
-                                System.out.println("Received message: " + message.getText() + " from client UID: "
-                                        + message.getClientNode().getUID());
+
+                                if (message.getType() == Message.MessageType.HANDSHAKE) {
+                                    System.out.println(
+                                            "Received handshake message: " + message.getText() + " from client UID: "
+                                                    + message.getClientNode().getUID());
+
+                                } else if (message.getType() == Message.MessageType.LEADER_ELECTION_IN_PROGRESS) {
+                                    System.out.println("Received leader election WIP message from client UID: "
+                                            + message.getClientNode().getUID());
+
+                                    serverNode.addLeaderElectionMessage(message);
+                                }
                             }
                         } catch (IOException | ClassNotFoundException e) {
                             e.printStackTrace();

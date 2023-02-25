@@ -15,6 +15,14 @@ public class TCPClient {
         this.serverNode = serverNode;
     }
 
+    public Node getClientNode() {
+        return this.clientNode;
+    }
+
+    public ObjectOutputStream getOutputStream() {
+        return this.outToServer;
+    }
+
     public void connect() {
         try {
             this.clientSocket = new Socket(this.serverNode.getHostName(), this.serverNode.getPort());
@@ -32,7 +40,7 @@ public class TCPClient {
                     Thread.sleep(2000);
 
                     String text = "Hello from " + this.clientNode.getUID();
-                    new Message(this.clientNode, text, Message.MessageType.HANDSHAKE).send(serverNode, outToServer);
+                    new Message(this.clientNode, text).send(this.serverNode, this.outToServer);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

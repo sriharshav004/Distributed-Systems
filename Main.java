@@ -6,9 +6,9 @@ public class Main {
             String currHostName = InetAddress.getLocalHost().getHostName();
             Node currNode = ReadConfig.read(currHostName);
 
+            TCPServer server = new TCPServer(currNode);
             Runnable servRunnable = new Runnable() {
                 public void run() {
-                    TCPServer server = new TCPServer(currNode);
                     server.startListening();
                 }
             };
@@ -27,12 +27,16 @@ public class Main {
 
                             TCPClient client = new TCPClient(currNode, neighbourNode);
                             client.connect();
+
+                            currNode.addNeighbourClient(client);
                         }
                     };
                     Thread cliThread = new Thread(cliRunnable);
                     cliThread.start();
                 }
             }
+
+            new PelegsLeaderElection(server).startElection();
 
         } catch (Exception e) {
             e.printStackTrace();
