@@ -9,6 +9,9 @@ public class TCPClient {
     private ObjectOutputStream outToServer;
     private Node serverNode;
 
+    public TCPClient() {
+    }
+
     public TCPClient(Node clientNode, Node serverNode) {
         this.clientNode = clientNode;
         this.serverNode = serverNode;

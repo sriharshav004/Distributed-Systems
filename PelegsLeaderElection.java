@@ -42,7 +42,7 @@ public class PelegsLeaderElection {
         for (TCPClient client : this.currNode.getNeighbourClients()) {
             System.out.println("LEADER_ELEC -> Sending message to server: " + client.getServerNode().getUID());
 
-            new Message(currNode.getUID(), this.maxDistance, this.maxUID, this.phase,
+            new Message(this.currNode.getUID(), this.maxDistance, this.maxUID, this.phase,
                     Message.MessageType.LEADER_ELECTION_IN_PROGRESS)
                     .send(client.getServerNode(), client.getOutputStream());
         }
@@ -92,7 +92,7 @@ public class PelegsLeaderElection {
         this.phase = this.phase + 1;
     }
 
-    private Boolean didAllNeighboursReply() {
+    private boolean didAllNeighboursReply() {
         long receivedCount = this.currNode
                 .getReceivedMessages()
                 .stream()

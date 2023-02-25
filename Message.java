@@ -4,6 +4,9 @@ import java.io.Serializable;
 
 public class Message implements Serializable {
     public enum MessageType {
+        BFS_BUILD_CHILD_REQUEST,
+        BFS_BUILD_CHILD_REQUEST_ACCEPTED,
+        BFS_BUILD_CHILD_REQUEST_REJECTED,
         HANDSHAKE,
         LEADER_ELECTION_IN_PROGRESS,
         LEADER_ELECTION_COMPLETE
@@ -12,11 +15,16 @@ public class Message implements Serializable {
     private int senderUID;
     private MessageType type;
 
+    // variables for handshake message
     private String text;
 
+    // variables for leader election algorithm
     private int maxDistance;
     private int maxUID = -1;
     private int phase;
+
+    // variables for building BFS tree
+    private int parentUID = -1;
 
     public Message() {
     }
@@ -33,6 +41,12 @@ public class Message implements Serializable {
         this.senderUID = senderUID;
         this.text = text;
         this.type = MessageType.HANDSHAKE;
+    }
+
+    public Message(int senderUID, int parentUID, MessageType type) {
+        this.senderUID = senderUID;
+        this.parentUID = parentUID;
+        this.type = type;
     }
 
     public int getMaxDistance() {

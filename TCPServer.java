@@ -42,16 +42,10 @@ public class TCPServer {
                                             "Received handshake message: " + message.getText() + " from client UID: "
                                                     + message.getSenderUID());
 
-                                } else if (message.getType() == Message.MessageType.LEADER_ELECTION_IN_PROGRESS) {
-                                    System.out.println("Received leader election WIP message from client UID: "
-                                            + message.getSenderUID());
-
-                                    serverNode.addLeaderElectionMessage(message);
-                                } else if (message.getType() == Message.MessageType.LEADER_ELECTION_COMPLETE) {
-                                    System.out.println("Received leader election complete message from client UID: "
-                                            + message.getSenderUID());
-
-                                    serverNode.addLeaderElectionMessage(message);
+                                } else {
+                                    System.out
+                                            .println(message.getType() + " from client UID: " + message.getSenderUID());
+                                    serverNode.addReceivedMessage(message);
                                 }
                             }
                         } catch (IOException | ClassNotFoundException e) {
