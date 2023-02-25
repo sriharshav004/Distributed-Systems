@@ -20,7 +20,7 @@ public class Main {
                     Runnable cliRunnable = new Runnable() {
                         public void run() {
                             try {
-                                Thread.sleep(10000);
+                                Thread.sleep(2000);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
@@ -33,6 +33,16 @@ public class Main {
                     };
                     Thread cliThread = new Thread(cliRunnable);
                     cliThread.start();
+                }
+            }
+
+            while (!currNode.areAllNeighboursOnline()) {
+                System.out.println("Waiting for all neighbours to come online.");
+
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
 

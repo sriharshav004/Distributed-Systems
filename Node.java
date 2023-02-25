@@ -46,6 +46,10 @@ public class Node implements Serializable {
         }
     }
 
+    public Boolean areAllNeighboursOnline() {
+        return this.neighbours.size() == this.neighbourClients.size();
+    }
+
     public ArrayList<Node> getAllNodes() {
         return this.allNodes;
     }
