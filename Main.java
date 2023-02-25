@@ -48,6 +48,14 @@ public class Main {
 
             new PelegsLeaderElection(server).startElection();
 
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            new BFSTree(currNode).buildTree();
+
         } catch (Exception e) {
             e.printStackTrace();
         }

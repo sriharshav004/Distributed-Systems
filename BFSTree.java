@@ -7,6 +7,8 @@ public class BFSTree {
     }
 
     public void buildTree() {
+        System.out.println("BFS_BUILD -> Starting BFS build");
+
         this.currNode.startBFSBuild();
         this.currNode.setVisited(true);
 
@@ -40,6 +42,7 @@ public class BFSTree {
 
         switch (latestMessage.getType()) {
             case BFS_BUILD_CHILD_REQUEST:
+                System.out.println("BFS_BUILD -> Receved child request from " + latestMessage.getSenderUID());
                 if (this.currNode.isNodeVisited()) {
                     this.sendChildRequestRejected(latestMessage.getSenderUID());
                 } else {
@@ -51,6 +54,7 @@ public class BFSTree {
                 break;
 
             case BFS_BUILD_CHILD_REQUEST_ACCEPTED:
+                System.out.println("BFS_BUILD -> Receved child request accepted from " + latestMessage.getSenderUID());
                 this.currNode.addChildNode(latestMessage.getSenderUID());
 
                 this.receivedMessagesCount = this.receivedMessagesCount + 1;
@@ -60,6 +64,7 @@ public class BFSTree {
                 break;
 
             case BFS_BUILD_CHILD_REQUEST_REJECTED:
+                System.out.println("BFS_BUILD -> Receved child request rejected from " + latestMessage.getSenderUID());
                 this.receivedMessagesCount = this.receivedMessagesCount + 1;
                 if (this.receivedMessagesCount == this.currNode.getNeighbours().size()) {
                     this.sendChildRequestAccepted(this.currNode.getParentUID());
