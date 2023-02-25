@@ -20,7 +20,7 @@ public class Main {
                     Runnable cliRunnable = new Runnable() {
                         public void run() {
                             try {
-                                Thread.sleep(2000);
+                                Thread.sleep(5000);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
@@ -40,7 +40,7 @@ public class Main {
                 System.out.println("LEADER_ELEC -> Waiting for all neighbours to come online");
 
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
