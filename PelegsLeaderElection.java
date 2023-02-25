@@ -1,3 +1,4 @@
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PelegsLeaderElection {
@@ -29,7 +30,7 @@ public class PelegsLeaderElection {
 
             if (this.exitCount == 2) {
                 System.out.println(
-                        "LEADER_ELEC -> Leader election complete. UID: " + this.currNode.getUID() + " is the leader");
+                        "LEADER_ELEC -> Leader election complete. UID: " + this.maxUID + " is the leader");
                 break;
             }
         }
@@ -95,8 +96,10 @@ public class PelegsLeaderElection {
                 .stream()
                 .filter(msg -> msg.getPhase() == this.phase);
 
-        int newMaxUID = currPhaseMessages.toList().get(0).getMaxUID();
-        for (Message msg : currPhaseMessages.toList()) {
+        int newMaxUID = currPhaseMessages
+                .collect(Collectors.toList())
+                .get(0).getMaxUID();
+        for (Message msg : currPhaseMessages.collect(Collectors.toList())) {
             if (newMaxUID < msg.getMaxUID())
                 newMaxUID = msg.getMaxUID();
         }
@@ -109,8 +112,11 @@ public class PelegsLeaderElection {
                 .stream()
                 .filter(msg -> msg.getPhase() == this.phase && msg.getMaxUID() == this.maxUID);
 
-        int newMaxDistance = currPhaseMessages.toList().get(0).getMaxDistance();
-        for (Message msg : currPhaseMessages.toList()) {
+        int newMaxDistance = currPhaseMessages
+                .collect(Collectors.toList())
+                .get(0)
+                .getMaxDistance();
+        for (Message msg : currPhaseMessages.collect(Collectors.toList())) {
             if (newMaxDistance < msg.getMaxDistance())
                 newMaxDistance = msg.getMaxDistance();
         }
