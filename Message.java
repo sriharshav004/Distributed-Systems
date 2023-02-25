@@ -9,7 +9,7 @@ public class Message implements Serializable {
         LEADER_ELECTION_COMPLETE
     }
 
-    private Node cliNode;
+    private int senderUID;
     private MessageType type;
 
     private String text;
@@ -21,22 +21,18 @@ public class Message implements Serializable {
     public Message() {
     }
 
-    public Message(Node cliNode, int maxDistance, int maxUID, int phase, MessageType type) {
-        this.cliNode = cliNode;
+    public Message(int senderUID, int maxDistance, int maxUID, int phase, MessageType type) {
+        this.senderUID = senderUID;
         this.maxDistance = maxDistance;
         this.maxUID = maxUID;
         this.phase = phase;
         this.type = type;
     }
 
-    public Message(Node cliNode, String text) {
-        this.cliNode = cliNode;
+    public Message(int senderUID, String text) {
+        this.senderUID = senderUID;
         this.text = text;
         this.type = MessageType.HANDSHAKE;
-    }
-
-    public Node getClientNode() {
-        return this.cliNode;
     }
 
     public int getMaxDistance() {
@@ -49,6 +45,10 @@ public class Message implements Serializable {
 
     public int getPhase() {
         return this.phase;
+    }
+
+    public int getSenderUID() {
+        return this.senderUID;
     }
 
     public String getText() {

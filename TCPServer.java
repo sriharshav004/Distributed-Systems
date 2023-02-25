@@ -40,16 +40,16 @@ public class TCPServer {
                                 if (message.getType() == Message.MessageType.HANDSHAKE) {
                                     System.out.println(
                                             "Received handshake message: " + message.getText() + " from client UID: "
-                                                    + message.getClientNode().getUID());
+                                                    + message.getSenderUID());
 
                                 } else if (message.getType() == Message.MessageType.LEADER_ELECTION_IN_PROGRESS) {
                                     System.out.println("Received leader election WIP message from client UID: "
-                                            + message.getClientNode().getUID());
+                                            + message.getSenderUID());
 
                                     serverNode.addLeaderElectionMessage(message);
                                 } else if (message.getType() == Message.MessageType.LEADER_ELECTION_COMPLETE) {
                                     System.out.println("Received leader election complete message from client UID: "
-                                            + message.getClientNode().getUID());
+                                            + message.getSenderUID());
 
                                     serverNode.addLeaderElectionMessage(message);
                                 }
