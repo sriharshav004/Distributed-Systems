@@ -38,13 +38,13 @@ public class TCPServer {
                                 Message message = (Message) inFromClient.readObject();
 
                                 if (message.getType() == Message.MessageType.HANDSHAKE) {
-                                    System.out.println(
-                                            "Received handshake message: " + message.getText() + " from client UID: "
-                                                    + message.getSenderUID());
+                                    // System.out.println(
+                                    // "Received handshake message: " + message.getText() + " from client UID: "
+                                    // + message.getSenderUID());
 
                                 } else {
-                                    System.out
-                                            .println(message.getType() + " from client UID: " + message.getSenderUID());
+                                    // System.out
+                                    // .println(message.getType() + " from client UID: " + message.getSenderUID());
                                     serverNode.addReceivedMessage(message);
                                 }
                             }

@@ -10,8 +10,6 @@ public class BFSTree {
         System.out.println("BFS_BUILD -> Starting BFS build");
 
         this.currNode.startBFSBuild();
-        this.currNode.setVisited(true);
-
         if (this.currNode.isNodeLeader()) {
             this.sendSearch();
         }
@@ -30,15 +28,20 @@ public class BFSTree {
 
     private void sendSearch() {
         for (TCPClient client : this.currNode.getNeighbourClients()) {
-            System.out.println("BFS_BUILD -> Sending message to server: " + client.getServerNode().getUID());
+            if (client.getServerNode().getUID() != this.currNode.getUID()) {
+                System.out.println("BFS_BUILD -> Sending message to server: " + client.getServerNode().getUID());
 
-            new Message(this.currNode.getUID(), this.currNode.getUID(), Message.MessageType.BFS_BUILD_CHILD_REQUEST)
-                    .send(client.getServerNode(), client.getOutputStream());
+                new Message(this.currNode.getUID(), this.currNode.getUID(), Message.MessageType.BFS_BUILD_CHILD_REQUEST)
+                        .send(client.getServerNode(), client.getOutputStream());
+            }
         }
     }
 
     private void listenMessages() {
         Message latestMessage = this.currNode.popLatestReceivedMessage();
+
+        if (latestMessage.getSenderUID() == -1)
+            return;
 
         switch (latestMessage.getType()) {
             case BFS_BUILD_CHILD_REQUEST:
@@ -58,7 +61,8 @@ public class BFSTree {
                 this.currNode.addChildNode(latestMessage.getSenderUID());
 
                 this.receivedMessagesCount = this.receivedMessagesCount + 1;
-                if (this.receivedMessagesCount == this.currNode.getNeighbours().size()) {
+
+                if (this.didAllNeighboursReply()) {
                     this.sendChildRequestAccepted(this.currNode.getParentUID());
                 }
                 break;
@@ -66,7 +70,8 @@ public class BFSTree {
             case BFS_BUILD_CHILD_REQUEST_REJECTED:
                 System.out.println("BFS_BUILD -> Receved child request rejected from " + latestMessage.getSenderUID());
                 this.receivedMessagesCount = this.receivedMessagesCount + 1;
-                if (this.receivedMessagesCount == this.currNode.getNeighbours().size()) {
+
+                if (this.didAllNeighboursReply()) {
                     this.sendChildRequestAccepted(this.currNode.getParentUID());
                 }
                 break;
@@ -74,6 +79,12 @@ public class BFSTree {
             default:
                 return;
         }
+    }
+
+    private boolean didAllNeighboursReply() {
+        return this.currNode.isNodeLeader()
+                ? this.receivedMessagesCount == this.currNode.getNeighbours().size()
+                : this.receivedMessagesCount == this.currNode.getNeighbours().size() + 1;
     }
 
     private void sendChildRequestAccepted(int clientUID) {

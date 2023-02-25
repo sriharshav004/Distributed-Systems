@@ -37,19 +37,19 @@ public class Main {
             }
 
             while (!currNode.areAllNeighboursOnline()) {
-                System.out.println("LEADER_ELEC -> Waiting for all neighbours to come online");
-
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(10000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+
+                System.out.println("Waiting for all neighbours to come online");
             }
 
             new PelegsLeaderElection(server).startElection();
 
             try {
-                Thread.sleep(5000);
+                Thread.sleep(10000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

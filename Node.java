@@ -17,9 +17,9 @@ public class Node implements Serializable {
     private int leaderUID;
 
     // variables for building BFS tree
-    private List<Integer> childNodes;
+    private List<Integer> childNodes = new ArrayList<Integer>();
     private int parentUID;
-    private boolean visited;
+    private boolean visited = false;
 
     public Node() {
     }
@@ -127,9 +127,7 @@ public class Node implements Serializable {
     }
 
     public Message popLatestReceivedMessage() {
-        synchronized (this.receivedMessages) {
-            return this.receivedMessages.remove(0);
-        }
+        return this.receivedMessages.size() > 0 ? this.receivedMessages.remove(0) : new Message();
     }
 
     public void setAllNodes(ArrayList<Node> allNodes) {
@@ -148,7 +146,6 @@ public class Node implements Serializable {
         this.childNodes.clear();
         this.parentUID = -1;
         this.visited = false;
-        this.receivedMessages.clear();
     }
 
     public void startLeaderElection() {

@@ -12,7 +12,7 @@ public class Message implements Serializable {
         LEADER_ELECTION_COMPLETE
     }
 
-    private int senderUID;
+    private int senderUID = -1;
     private MessageType type;
 
     // variables for handshake message
@@ -78,7 +78,8 @@ public class Message implements Serializable {
             outToServer.writeObject(this);
             outToServer.flush();
 
-            System.out.println("Sent message: " + this.getType() + " to server UID: " + serverNode.getUID());
+            // System.out.println("Sent message: " + this.getType() + " to server UID: " +
+            // serverNode.getUID());
         } catch (IOException e) {
             e.printStackTrace();
         }
