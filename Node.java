@@ -47,6 +47,11 @@ public class Node implements Serializable {
         return this.neighbours.size() == this.neighbourClients.size();
     }
 
+    public void endLeaderElection(int leaderUID) {
+        this.isLeaderElectionCompleted = true;
+        this.leaderUID = leaderUID;
+    }
+
     public ArrayList<Node> getAllNodes() {
         return this.allNodes;
     }

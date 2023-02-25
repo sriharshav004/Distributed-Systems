@@ -5,7 +5,8 @@ import java.io.Serializable;
 public class Message implements Serializable {
     public enum MessageType {
         HANDSHAKE,
-        LEADER_ELECTION_IN_PROGRESS
+        LEADER_ELECTION_IN_PROGRESS,
+        LEADER_ELECTION_COMPLETE
     }
 
     private Node cliNode;
@@ -14,15 +15,18 @@ public class Message implements Serializable {
     private String text;
 
     private int maxDistance;
-    private int maxUID;
+    private int maxUID = -1;
     private int phase;
 
-    public Message(Node cliNode, int maxDistance, int maxUID, int phase) {
+    public Message() {
+    }
+
+    public Message(Node cliNode, int maxDistance, int maxUID, int phase, MessageType type) {
         this.cliNode = cliNode;
         this.maxDistance = maxDistance;
         this.maxUID = maxUID;
         this.phase = phase;
-        this.type = MessageType.LEADER_ELECTION_IN_PROGRESS;
+        this.type = type;
     }
 
     public Message(Node cliNode, String text) {

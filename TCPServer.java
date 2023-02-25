@@ -47,6 +47,11 @@ public class TCPServer {
                                             + message.getClientNode().getUID());
 
                                     serverNode.addLeaderElectionMessage(message);
+                                } else if (message.getType() == Message.MessageType.LEADER_ELECTION_COMPLETE) {
+                                    System.out.println("Received leader election complete message from client UID: "
+                                            + message.getClientNode().getUID());
+
+                                    serverNode.addLeaderElectionMessage(message);
                                 }
                             }
                         } catch (IOException | ClassNotFoundException e) {
