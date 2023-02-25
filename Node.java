@@ -13,11 +13,8 @@ public class Node implements Serializable {
 
     // variables for leader election algorithm
     private Boolean isLeaderElectionCompleted;
-    private Boolean isLeaderElectionInProgress;
     private int leaderUID;
-    private int maxDistance;
-    private int maxUID;
-    private List<Message> receivedMessages;
+    private List<Message> receivedMessages = Collections.synchronizedList(new ArrayList<Message>());
 
     public Node() {
     }
@@ -58,14 +55,6 @@ public class Node implements Serializable {
         return this.hostName;
     }
 
-    public int getMaxDistance() {
-        return this.maxDistance;
-    }
-
-    public int getMaxUID() {
-        return this.maxUID;
-    }
-
     public List<TCPClient> getNeighbourClients() {
         return this.neighbourClients;
     }
@@ -100,10 +89,6 @@ public class Node implements Serializable {
 
     public void startLeaderElection() {
         this.isLeaderElectionCompleted = false;
-        this.isLeaderElectionInProgress = true;
         this.leaderUID = -1;
-        this.maxDistance = 0;
-        this.maxUID = this.UID;
-        this.receivedMessages = Collections.synchronizedList(new ArrayList<Message>());
     }
 }

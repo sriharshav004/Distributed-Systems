@@ -37,7 +37,7 @@ public class Main {
             }
 
             while (!currNode.areAllNeighboursOnline()) {
-                System.out.println("Waiting for all neighbours to come online.");
+                System.out.println("LEADER_ELEC -> Waiting for all neighbours to come online");
 
                 try {
                     Thread.sleep(2000);
