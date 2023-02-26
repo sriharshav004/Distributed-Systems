@@ -4,9 +4,11 @@ import java.io.Serializable;
 
 public class Message implements Serializable {
     public enum MessageType {
+        BFS_BUILD_BEGIN_CHILD_SEARCH,
         BFS_BUILD_CHILD_REQUEST,
         BFS_BUILD_CHILD_REQUEST_ACCEPTED,
         BFS_BUILD_CHILD_REQUEST_REJECTED,
+        BFS_BUILD_CHILD_SEARCH_COMPLETED,
         HANDSHAKE,
         LEADER_ELECTION_IN_PROGRESS,
         LEADER_ELECTION_COMPLETE
