@@ -40,8 +40,6 @@ public class PelegsLeaderElection {
 
     private void sendMessages() {
         for (TCPClient client : this.currNode.getNeighbourClients()) {
-            System.out.println("LEADER_ELEC -> Sending message to server: " + client.getServerNode().getUID());
-
             new Message(this.currNode.getUID(), this.maxDistance, this.maxUID, this.phase,
                     Message.MessageType.LEADER_ELECTION_IN_PROGRESS)
                     .send(client.getServerNode(), client.getOutputStream());
@@ -51,17 +49,15 @@ public class PelegsLeaderElection {
     private void listenMessages() {
         while (!this.didAllNeighboursReply()) {
             try {
-                System.out.println("LEADER_ELEC -> Waiting to receive replies from all neighbours");
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
 
-        System.out.println("LEADER_ELEC -> Received all replies. Proceeding to next phase");
         Message electionCompleteMessage = this.getElectionCompleteMessage();
 
-        if (electionCompleteMessage.getMaxUID() != -1) {
+        if (electionCompleteMessage.getSenderUID() != -1) {
             this.exitCount = 2;
             this.maxDistance = electionCompleteMessage.getMaxDistance();
             this.maxUID = electionCompleteMessage.getMaxUID();
@@ -96,7 +92,8 @@ public class PelegsLeaderElection {
         long receivedCount = this.currNode
                 .getReceivedMessages()
                 .stream()
-                .filter(msg -> msg.getPhase() == this.phase)
+                .filter(msg -> msg.getPhase() == this.phase
+                        && msg.getType() == Message.MessageType.LEADER_ELECTION_IN_PROGRESS)
                 .count();
 
         int neighboursCount = this.currNode.getNeighbours().size();
@@ -111,10 +108,9 @@ public class PelegsLeaderElection {
                         && msg.getType() == Message.MessageType.LEADER_ELECTION_COMPLETE)
                 .collect(Collectors.toList());
 
-        if (currPhaseMessages.size() > 0) {
-            return currPhaseMessages.get(0);
-        }
-        return new Message();
+        return currPhaseMessages.size() > 0
+                ? currPhaseMessages.get(0)
+                : new Message();
     }
 
     private int getMaxUID() {
@@ -151,9 +147,7 @@ public class PelegsLeaderElection {
         this.currNode.endLeaderElection(this.maxUID);
 
         for (TCPClient client : this.currNode.getNeighbourClients()) {
-            System.out.println("LEADER_ELEC -> Sending complete message to server: " + client.getServerNode().getUID());
-
-            new Message(currNode.getUID(), this.maxDistance, this.maxUID, this.phase,
+            new Message(this.currNode.getUID(), this.maxDistance, this.maxUID, this.phase,
                     Message.MessageType.LEADER_ELECTION_COMPLETE)
                     .send(client.getServerNode(), client.getOutputStream());
         }

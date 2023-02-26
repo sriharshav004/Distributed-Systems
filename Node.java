@@ -1,9 +1,8 @@
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Node implements Serializable {
+public class Node {
     private ArrayList<Node> allNodes;
     private String hostName;
     private ArrayList<Integer> neighbours;
@@ -13,7 +12,6 @@ public class Node implements Serializable {
     private List<Message> receivedMessages = Collections.synchronizedList(new ArrayList<Message>());
 
     // variables for leader election algorithm
-    private boolean isLeaderElectionCompleted;
     private int leaderUID;
 
     // variables for building BFS tree
@@ -57,7 +55,6 @@ public class Node implements Serializable {
     }
 
     public void endLeaderElection(int leaderUID) {
-        this.isLeaderElectionCompleted = true;
         this.leaderUID = leaderUID;
         this.receivedMessages.clear();
     }
@@ -71,7 +68,7 @@ public class Node implements Serializable {
     }
 
     public TCPClient getClientConnection(int clientUID) {
-        for (TCPClient client : neighbourClients) {
+        for (TCPClient client : this.neighbourClients) {
             if (clientUID == client.getServerNode().getUID())
                 return client;
         }
@@ -79,7 +76,9 @@ public class Node implements Serializable {
     }
 
     public int getDegree() {
-        return this.isNodeLeader() ? this.childNodes.size() : this.childNodes.size() + 1;
+        return this.isNodeLeader()
+                ? this.childNodes.size()
+                : this.childNodes.size() + 1;
     }
 
     public String getHostName() {
@@ -135,7 +134,9 @@ public class Node implements Serializable {
     }
 
     public Message popLatestReceivedMessage() {
-        return this.receivedMessages.size() > 0 ? this.receivedMessages.remove(0) : new Message();
+        return this.receivedMessages.size() > 0
+                ? this.receivedMessages.remove(0)
+                : new Message();
     }
 
     public void setAllNodes(ArrayList<Node> allNodes) {
@@ -157,7 +158,6 @@ public class Node implements Serializable {
     }
 
     public void startLeaderElection() {
-        this.isLeaderElectionCompleted = false;
         this.leaderUID = -1;
     }
 }

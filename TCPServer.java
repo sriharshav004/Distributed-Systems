@@ -18,11 +18,9 @@ public class TCPServer {
 
     public void startListening() {
         try {
-            serverSocket = new ServerSocket(this.serverNode.getPort());
+            this.serverSocket = new ServerSocket(this.serverNode.getPort());
 
-            System.out.println(
-                    "Server online with UID: " + this.serverNode.getUID() + " and HostName: "
-                            + this.serverNode.getHostName());
+            System.out.println("Server online with UID: " + this.serverNode.getUID());
 
             while (true) {
                 Socket connectionSocket = serverSocket.accept();
@@ -37,14 +35,10 @@ public class TCPServer {
                             while (true) {
                                 Message message = (Message) inFromClient.readObject();
 
-                                if (message.getType() == Message.MessageType.HANDSHAKE) {
-                                    // System.out.println(
-                                    // "Received handshake message: " + message.getText() + " from client UID: "
-                                    // + message.getSenderUID());
+                                System.out.println("Received " + message.getType() + " message from UID: "
+                                        + message.getSenderUID());
 
-                                } else {
-                                    // System.out
-                                    // .println(message.getType() + " from client UID: " + message.getSenderUID());
+                                if (message.getType() != Message.MessageType.HANDSHAKE) {
                                     serverNode.addReceivedMessage(message);
                                 }
                             }

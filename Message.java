@@ -25,9 +25,6 @@ public class Message implements Serializable {
     private int maxUID = -1;
     private int phase;
 
-    // variables for building BFS tree
-    private int parentUID = -1;
-
     public Message() {
     }
 
@@ -45,9 +42,8 @@ public class Message implements Serializable {
         this.type = MessageType.HANDSHAKE;
     }
 
-    public Message(int senderUID, int parentUID, MessageType type) {
+    public Message(int senderUID, MessageType type) {
         this.senderUID = senderUID;
-        this.parentUID = parentUID;
         this.type = type;
     }
 
@@ -79,9 +75,6 @@ public class Message implements Serializable {
         try {
             outToServer.writeObject(this);
             outToServer.flush();
-
-            // System.out.println("Sent message: " + this.getType() + " to server UID: " +
-            // serverNode.getUID());
         } catch (IOException e) {
             e.printStackTrace();
         }

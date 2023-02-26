@@ -1,11 +1,9 @@
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class TCPClient {
     private Node clientNode;
-    private ObjectInputStream inFromServer;
     private ObjectOutputStream outToServer;
     private Node serverNode;
 
@@ -21,13 +19,10 @@ public class TCPClient {
         try {
             Socket clientSocket = new Socket(this.serverNode.getHostName(), this.serverNode.getPort());
 
-            System.out.println(
-                    "Client connected to UID: " + this.serverNode.getUID() + " and HostName: "
-                            + this.serverNode.getHostName());
+            System.out.println("Client connected to UID: " + this.serverNode.getUID());
 
             this.outToServer = new ObjectOutputStream(clientSocket.getOutputStream());
             this.outToServer.flush();
-            this.inFromServer = new ObjectInputStream(clientSocket.getInputStream());
 
             try {
                 Thread.sleep(2000);
