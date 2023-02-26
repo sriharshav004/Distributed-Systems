@@ -9,6 +9,15 @@ public class BFSTree {
 
     public BFSTree(Node currNode) {
         this.currNode = currNode;
+        this.initLastCommWithNeighbours();
+    }
+
+    private void initLastCommWithNeighbours() {
+        neighboursLastComm = new HashMap<>();
+
+        for (int neighbourUID : this.currNode.getNeighbours()) {
+            neighboursLastComm.put(neighbourUID, Message.MessageType.HANDSHAKE);
+        }
     }
 
     public void buildTree() {
@@ -32,15 +41,22 @@ public class BFSTree {
     }
 
     private void sendSearch() {
+        int sentMessagesCount = 0;
         for (TCPClient client : this.currNode.getNeighbourClients()) {
             if (client.getServerNode().getUID() != this.currNode.getParentUID()) {
                 System.out.println("BFS_BUILD -> Sending message to server: " + client.getServerNode().getUID());
 
                 new Message(this.currNode.getUID(), this.currNode.getUID(), Message.MessageType.BFS_BUILD_CHILD_REQUEST)
                         .send(client.getServerNode(), client.getOutputStream());
+
+                sentMessagesCount++;
             }
         }
         this.isSendSearchCompleted = true;
+
+        if (sentMessagesCount == 0) {
+            this.sendChildSearchComplete();
+        }
     }
 
     private void listenMessages() {
@@ -71,12 +87,10 @@ public class BFSTree {
                 this.currNode.addChildNode(latestMessage.getSenderUID());
 
                 this.receivedMessagesCount = this.receivedMessagesCount + 1;
-                didAllNeighboursReply = this.didAllNeighboursReply();
 
-                if (didAllNeighboursReply && (this.currNode.isNodeLeader() || !this.isSendSearchCompleted)) {
+                if (this.didAllNeighboursReply()) {
                     this.sendBeginChildSearch();
-                } else if (didAllNeighboursReply) {
-                    this.sendChildSearchComplete();
+                    this.receivedMessagesCount = 0;
                 }
 
                 break;
@@ -86,12 +100,10 @@ public class BFSTree {
                         .println("BFS_BUILD -> BFS_BUILD_CHILD_REQUEST_REJECTED from " + latestMessage.getSenderUID());
 
                 this.receivedMessagesCount = this.receivedMessagesCount + 1;
-                didAllNeighboursReply = this.didAllNeighboursReply();
 
-                if (this.didAllNeighboursReply() && (this.currNode.isNodeLeader() || !this.isSendSearchCompleted)) {
+                if (this.didAllNeighboursReply()) {
                     this.sendBeginChildSearch();
-                } else if (didAllNeighboursReply) {
-                    this.sendChildSearchComplete();
+                    this.receivedMessagesCount = 0;
                 }
                 break;
 
@@ -101,6 +113,13 @@ public class BFSTree {
                 break;
 
             case BFS_BUILD_CHILD_SEARCH_COMPLETED:
+                System.out
+                        .println("BFS_BUILD -> BFS_BUILD_CHILD_SEARCH_COMPLETED from " + latestMessage.getSenderUID());
+                if (this.receivedMessagesCount == this.currNode.getChildNodes().size()) {
+                    this.sendChildSearchComplete();
+                }
+                break;
+
             default:
                 return;
         }
