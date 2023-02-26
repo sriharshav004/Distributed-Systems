@@ -110,6 +110,14 @@ public class Node implements Serializable {
         return this.UID;
     }
 
+    public boolean isNodeChild(int nodeUID) {
+        for (int childUID : this.childNodes) {
+            if (nodeUID == childUID)
+                return true;
+        }
+        return false;
+    }
+
     public boolean isNodeLeader() {
         return this.UID == this.leaderUID;
     }
