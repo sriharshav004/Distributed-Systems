@@ -1,24 +1,25 @@
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BFSTree {
     private Node currNode;
-    private boolean isSendSearchCompleted = false;
-    private int receivedMessagesCount;
-    private HashMap<Integer, Message.MessageType> neighboursLastComm;
+    private int receivedAckMessagesCount;
+    private int receivedCompletedMessagesCount;
+    private List<Integer> rejectedNodes = new ArrayList<Integer>();
+    // private HashMap<Integer, Message.MessageType> neighboursLastComm;
 
     public BFSTree(Node currNode) {
         this.currNode = currNode;
-        this.initLastCommWithNeighbours();
+        // this.initLastCommWithNeighbours();
     }
 
-    private void initLastCommWithNeighbours() {
-        neighboursLastComm = new HashMap<>();
+    // private void initLastCommWithNeighbours() {
+    // neighboursLastComm = new HashMap<>();
 
-        for (int neighbourUID : this.currNode.getNeighbours()) {
-            neighboursLastComm.put(neighbourUID, Message.MessageType.HANDSHAKE);
-        }
-    }
+    // for (int neighbourUID : this.currNode.getNeighbours()) {
+    // neighboursLastComm.put(neighbourUID, Message.MessageType.HANDSHAKE);
+    // }
+    // }
 
     public void buildTree() {
         System.out.println("BFS_BUILD -> Starting BFS build");
@@ -28,7 +29,9 @@ public class BFSTree {
             this.sendSearch();
         }
 
-        this.receivedMessagesCount = 0;
+        this.receivedAckMessagesCount = 0;
+        this.receivedCompletedMessagesCount = 0;
+
         while (true) {
             this.listenMessages();
 
@@ -36,14 +39,17 @@ public class BFSTree {
                 break;
         }
 
-        System.out.println("BFS_BUILD -> Completed. Child Nodes: " + this.currNode.getChildNodes() + "Degree: "
+        System.out.println("BFS_BUILD -> Completed for UID: " + this.currNode.getUID() + ". Child Nodes: "
+                + this.currNode.getChildNodes() + " Degree: "
                 + this.currNode.getDegree());
     }
 
     private void sendSearch() {
         int sentMessagesCount = 0;
         for (TCPClient client : this.currNode.getNeighbourClients()) {
-            if (client.getServerNode().getUID() != this.currNode.getParentUID()) {
+            int clientUID = client.getServerNode().getUID();
+
+            if (clientUID != this.currNode.getParentUID() && this.rejectedNodes.indexOf(clientUID) == -1) {
                 System.out.println("BFS_BUILD -> Sending message to server: " + client.getServerNode().getUID());
 
                 new Message(this.currNode.getUID(), this.currNode.getUID(), Message.MessageType.BFS_BUILD_CHILD_REQUEST)
@@ -52,7 +58,6 @@ public class BFSTree {
                 sentMessagesCount++;
             }
         }
-        this.isSendSearchCompleted = true;
 
         if (sentMessagesCount == 0) {
             this.sendChildSearchComplete();
@@ -65,12 +70,13 @@ public class BFSTree {
         if (latestMessage.getSenderUID() == -1)
             return;
 
-        boolean didAllNeighboursReply = false;
-        neighboursLastComm.put(latestMessage.getSenderUID(), latestMessage.getType());
+        // neighboursLastComm.put(latestMessage.getSenderUID(),
+        // latestMessage.getType());
 
         switch (latestMessage.getType()) {
             case BFS_BUILD_CHILD_REQUEST:
                 System.out.println("BFS_BUILD -> BFS_BUILD_CHILD_REQUEST from " + latestMessage.getSenderUID());
+
                 if (this.currNode.isNodeVisited()) {
                     this.sendChildRequestRejected(latestMessage.getSenderUID());
                 } else {
@@ -84,13 +90,14 @@ public class BFSTree {
             case BFS_BUILD_CHILD_REQUEST_ACCEPTED:
                 System.out.println(
                         "BFS_BUILD -> Received BFS_BUILD_CHILD_REQUEST_ACCEPTED from " + latestMessage.getSenderUID());
+
                 this.currNode.addChildNode(latestMessage.getSenderUID());
 
-                this.receivedMessagesCount = this.receivedMessagesCount + 1;
+                this.receivedAckMessagesCount = this.receivedAckMessagesCount + 1;
 
-                if (this.didAllNeighboursReply()) {
+                if (this.didAllNeighboursReplyAck()) {
                     this.sendBeginChildSearch();
-                    this.receivedMessagesCount = 0;
+                    this.receivedAckMessagesCount = 0;
                 }
 
                 break;
@@ -99,11 +106,11 @@ public class BFSTree {
                 System.out
                         .println("BFS_BUILD -> BFS_BUILD_CHILD_REQUEST_REJECTED from " + latestMessage.getSenderUID());
 
-                this.receivedMessagesCount = this.receivedMessagesCount + 1;
+                this.receivedAckMessagesCount = this.receivedAckMessagesCount + 1;
 
-                if (this.didAllNeighboursReply()) {
+                if (this.didAllNeighboursReplyAck()) {
                     this.sendBeginChildSearch();
-                    this.receivedMessagesCount = 0;
+                    this.receivedAckMessagesCount = 0;
                 }
                 break;
 
@@ -115,7 +122,10 @@ public class BFSTree {
             case BFS_BUILD_CHILD_SEARCH_COMPLETED:
                 System.out
                         .println("BFS_BUILD -> BFS_BUILD_CHILD_SEARCH_COMPLETED from " + latestMessage.getSenderUID());
-                if (this.receivedMessagesCount == this.currNode.getChildNodes().size()) {
+
+                this.receivedCompletedMessagesCount = this.receivedCompletedMessagesCount + 1;
+
+                if (this.receivedCompletedMessagesCount == this.currNode.getChildNodes().size()) {
                     this.sendChildSearchComplete();
                 }
                 break;
@@ -126,28 +136,35 @@ public class BFSTree {
     }
 
     private boolean isTreeConstructionCompleted() {
-        for (Map.Entry<Integer, Message.MessageType> entry : neighboursLastComm.entrySet()) {
-            int neighbourUID = entry.getKey();
-            Message.MessageType messageType = entry.getValue();
+        int rejectedNodesCount = this.rejectedNodes.size();
+        int completedChildNodesCount = this.receivedCompletedMessagesCount;
+        int parentsCount = this.currNode.isNodeLeader() ? 0 : 1;
 
-            if (neighbourUID == this.currNode.getParentUID()) {
-                if (messageType != Message.MessageType.BFS_BUILD_BEGIN_CHILD_SEARCH)
-                    return false;
-            } else if (this.currNode.isNodeChild(neighbourUID)) {
-                if (messageType != Message.MessageType.BFS_BUILD_CHILD_SEARCH_COMPLETED)
-                    return false;
-            } else {
-                if (messageType != Message.MessageType.BFS_BUILD_CHILD_REQUEST_REJECTED)
-                    return false;
-            }
-        }
-        return true;
+        return this.currNode.getNeighbours().size() == rejectedNodesCount + completedChildNodesCount + parentsCount;
+        // for (Map.Entry<Integer, Message.MessageType> entry :
+        // neighboursLastComm.entrySet()) {
+        // int neighbourUID = entry.getKey();
+        // Message.MessageType messageType = entry.getValue();
+
+        // if (neighbourUID == this.currNode.getParentUID()) {
+        // if (messageType != Message.MessageType.BFS_BUILD_BEGIN_CHILD_SEARCH)
+        // return false;
+        // } else if (this.currNode.isNodeChild(neighbourUID)) {
+        // if (messageType != Message.MessageType.BFS_BUILD_CHILD_SEARCH_COMPLETED)
+        // return false;
+        // } else {
+        // if (messageType != Message.MessageType.BFS_BUILD_CHILD_REQUEST_REJECTED &&
+        // this.rejectedNodes.indexOf(neighbourUID) == -1)
+        // return false;
+        // }
+        // }
+        // return true;
     }
 
-    private boolean didAllNeighboursReply() {
+    private boolean didAllNeighboursReplyAck() {
         return this.currNode.isNodeLeader()
-                ? this.receivedMessagesCount == this.currNode.getNeighbours().size()
-                : this.receivedMessagesCount + 1 == this.currNode.getNeighbours().size();
+                ? this.receivedAckMessagesCount == this.currNode.getNeighbours().size()
+                : this.receivedAckMessagesCount + 1 == this.currNode.getNeighbours().size();
     }
 
     private void sendChildRequestAccepted() {
@@ -164,6 +181,8 @@ public class BFSTree {
         new Message(this.currNode.getUID(), this.currNode.getParentUID(),
                 Message.MessageType.BFS_BUILD_CHILD_REQUEST_REJECTED)
                 .send(client.getServerNode(), client.getOutputStream());
+
+        this.rejectedNodes.add(clientUID);
     }
 
     private void sendBeginChildSearch() {
@@ -177,6 +196,9 @@ public class BFSTree {
     }
 
     private void sendChildSearchComplete() {
+        if (this.currNode.getParentUID() == -1)
+            return;
+
         TCPClient client = this.currNode.getClientConnection(this.currNode.getParentUID());
 
         new Message(this.currNode.getUID(), this.currNode.getParentUID(),
